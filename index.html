@@ -12,8 +12,8 @@
         <header class="app-header">
             <h1>Cognitive Test Suite</h1>
             <div class="header-controls">
-                <button id="darkModeToggle" class="btn-icon" title="Toggle dark mode"><span id="modeIcon">🌙</span></button>
-                <button id="historyBtn" class="btn-secondary" title="View session history">📊 History</button>
+                <button id="darkModeToggle" class="btn-icon mode-toggle" title="Toggle dark mode"><div id="modeIcon" class="mode-indicator"></div></button>
+                <button id="historyBtn" class="btn-secondary" title="View session history">History</button>
             </div>
         </header>
 
@@ -28,13 +28,13 @@
                     
                     <div class="button-group">
                         <button class="btn-primary btn-large" onclick="showTestSelection('reaction-attention')">
-                            ⚡ Reaction & Attention
+                            Reaction & Attention
                         </button>
                         <button class="btn-primary btn-large" onclick="showTestSelection('working-memory')">
-                            🧠 Working Memory
+                            Working Memory
                         </button>
                         <button class="btn-primary btn-large" onclick="showTestSelection('executive-function')">
-                            🎯 Executive Function
+                            Executive Function
                         </button>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                     <!-- FACTOR INPUT PANEL -->
                     <div class="factor-panel">
                         <button class="factor-toggle" onclick="toggleFactorPanel()">
-                            ⚙️ Optional: Enter Personal Factors
+                            Optional: Enter Personal Factors
                         </button>
                         <div id="factorInputs" class="factor-inputs" style="display: block;">
                             <p class="factor-info">These factors help us understand how conditions affect your performance. All are optional.</p>
@@ -114,7 +114,7 @@
                     <div id="resultsContent" class="results-content"></div>
 
                     <div class="results-actions button-group">
-                        <button class="btn-primary" onclick="showTrends()">📈 View Trends</button>
+                        <button class="btn-primary" onclick="showTrends()">View Trends</button>
                         <button class="btn-secondary" onclick="backToTestSelection()">← Try Another Test</button>
                         <button class="btn-secondary" onclick="goHome()">🏠 Home</button>
                     </div>

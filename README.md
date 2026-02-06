@@ -81,7 +81,7 @@ All sessions are automatically saved to browser LocalStorage with:
 Sessions with stress > 50%: avg RT = 480ms (5 sessions)
 Sessions with stress ≤ 50%: avg RT = 370ms (8 sessions)
 
-⏱️ Stress impact: +29.7% slower reactions under higher stress.
+Stress impact: +29.7% slower reactions under higher stress.
 Higher stress correlates with delayed response times.
 ```
 
@@ -93,8 +93,8 @@ Higher stress correlates with delayed response times.
 
 ### 8. Dark Mode
 - Toggle between dark and light modes from header button
-- Button shows 🌙 (moon) in light mode → click to switch to dark mode
-- Button shows ☀️ (sun) in dark mode → click to switch to light mode
+- Button shows (moon) in light mode → click to switch to dark mode
+- Button shows (sun) in dark mode → click to switch to light mode
 - Preference is saved in browser localStorage
 
 ## Technical Stack
@@ -129,7 +129,7 @@ PA2_Waterfall/
    - Filter by test type
    - Group by stress/fatigue to see factor impacts
    - View automatic pattern detection and observations
-10. **Track History**: Click "📊 History" to see all previous sessions with factors
+10. **Track History**: Click "History" to see all previous sessions with factors
 
 ## Test Details
 

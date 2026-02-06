@@ -77,10 +77,11 @@ function toggleDarkMode() {
 
 function updateModeIcon() {
     const modeIcon = document.getElementById('modeIcon');
+    // Visual indicator updates via CSS class changes
     if (document.body.classList.contains('dark-mode')) {
-        modeIcon.textContent = '☀️'; // Sun icon when in dark mode
+        modeIcon.classList.add('dark-mode-icon');
     } else {
-        modeIcon.textContent = '🌙'; // Moon icon when in light mode
+        modeIcon.classList.remove('dark-mode-icon');
     }
 }
 
@@ -1857,7 +1858,7 @@ function generateInsights() {
         if (slowdownPercent > 15) {
             insights.push({
                 type: 'attention',
-                message: `⚠️ Attention dip detected: Your reaction time slowed by ${Math.round(slowdownPercent)}% in the middle of the test. Try maintaining focus throughout.`
+                message: `Attention dip detected: Your reaction time slowed by ${Math.round(slowdownPercent)}% in the middle of the test. Try maintaining focus throughout.`
             });
         }
     }
@@ -1877,12 +1878,12 @@ function generateInsights() {
         if (factorImpact.length > 0 && accuracy < 75) {
             insights.push({
                 type: 'factors',
-                message: `📊 Factor Impact: Your ${factorImpact.join(' and ')} may have affected your performance. Consider retesting when more relaxed and rested.`
+                message: `Factor Impact: Your ${factorImpact.join(' and ')} may have affected your performance. Consider retesting when more relaxed and rested.`
             });
         } else if (factorImpact.length > 0 && accuracy >= 75) {
             insights.push({
                 type: 'factors',
-                message: `💪 Resilience: Despite ${factorImpact.join(' and ')}, you maintained good performance! Great mental resilience.`
+                message: `Resilience: Despite ${factorImpact.join(' and ')}, you maintained good performance! Great mental resilience.`
             });
         }
     }
@@ -1896,12 +1897,12 @@ function generateInsights() {
         if (currentScore > previousScore) {
             insights.push({
                 type: 'learning',
-                message: `📈 Learning Effect: You improved by ${currentScore - previousScore} point(s) compared to your last session! Keep practicing.`
+                message: `Learning Effect: You improved by ${currentScore - previousScore} point(s) compared to your last session! Keep practicing.`
             });
         } else if (currentScore < previousScore && currentScore > 0) {
             insights.push({
                 type: 'learning',
-                message: `📉 Performance Variation: Your score decreased slightly. Don't worry - performance varies. Try again when fresh.`
+                message: `Performance Variation: Your score decreased slightly. Don't worry - performance varies. Try again when fresh.`
             });
         }
     }
@@ -1911,17 +1912,17 @@ function generateInsights() {
     if (accuracy >= 90) {
         insights.push({
             type: 'performance',
-            message: `🌟 Excellent accuracy! You're performing at a high level. Consider trying a more challenging test.`
+            message: `Excellent accuracy! You're performing at a high level. Consider trying a more challenging test.`
         });
     } else if (accuracy >= 75) {
         insights.push({
             type: 'performance',
-            message: `✅ Good performance! Your accuracy is solid. Keep practicing to improve further.`
+            message: `Good performance! Your accuracy is solid. Keep practicing to improve further.`
         });
     } else if (accuracy >= 60) {
         insights.push({
             type: 'performance',
-            message: `👍 Room for improvement. Try taking the test again when you're more focused.`
+            message: `Room for improvement. Try taking the test again when you're more focused.`
         });
     }
 
@@ -1983,7 +1984,7 @@ function displayResults() {
 
     // Show insights and observations
     if (insights.length > 0) {
-        resultsHTML += '<div class="insights-section"><h4>🔍 Insights & Observations</h4>';
+        resultsHTML += '<div class="insights-section"><h4>Insights & Observations</h4>';
         insights.forEach(insight => {
             resultsHTML += `<div class="insight-item insight-${insight.type}">${insight.message}</div>`;
         });
@@ -2185,7 +2186,7 @@ function generateFactorAnalysis(groupedData, groupByFactor) {
         return;
     }
 
-    let analysisHTML = '<div class="analysis-section"><h4>📊 Factor-Based Observations</h4>';
+    let analysisHTML = '<div class="analysis-section"><h4>Factor-Based Observations</h4>';
     const observations = identifyPatterns(groupedData, groupByFactor);
 
     if (observations.length > 0) {
@@ -2255,7 +2256,7 @@ function generateStressObservations(stats) {
                 <strong>Sessions with stress > 50%:</strong> avg RT = ${Math.round(highStress.avgRT)}ms (${highStress.count} sessions)<br>
                 <strong>Sessions with stress ≤ 50%:</strong> avg RT = ${Math.round(lowStress.avgRT)}ms (${lowStress.count} sessions)
             `,
-            conclusion: `⏱️ Stress impact: ${rtPercent > 0 ? '+' : ''}${rtPercent}% ${rtPercent > 0 ? 'slower' : 'faster'} reactions under higher stress. Higher stress correlates with delayed response times.`
+            conclusion: `Stress impact: ${rtPercent > 0 ? '+' : ''}${rtPercent}% ${rtPercent > 0 ? 'slower' : 'faster'} reactions under higher stress. Higher stress correlates with delayed response times.`
         });
     }
 
@@ -2269,7 +2270,7 @@ function generateStressObservations(stats) {
                 <strong>Low Stress:</strong> Accuracy = ${lowStress.accuracy.toFixed(1)}% (${lowStress.totalErrors} errors)<br>
                 <strong>Medium Stress:</strong> Accuracy = ${medStress.accuracy.toFixed(1)}% (${medStress.totalErrors} errors)
             `,
-            conclusion: `📊 Accuracy shift: ${accDiff > 0 ? '+' : ''}${accDiff}% ${accDiff > 0 ? 'improvement' : 'decline'} as stress increases. Mental clarity appears ${accDiff > 0 ? 'maintained' : 'affected'}.`
+            conclusion: `Accuracy shift: ${accDiff > 0 ? '+' : ''}${accDiff}% ${accDiff > 0 ? 'improvement' : 'decline'} as stress increases. Mental clarity appears ${accDiff > 0 ? 'maintained' : 'affected'}.`
         });
     }
 
@@ -2306,7 +2307,7 @@ function generateFatigueObservations(stats) {
                 <strong>Sessions with fatigue > 70%:</strong> avg RT = ${Math.round(veryTired.avgRT)}ms (${veryTired.count} sessions)<br>
                 <strong>Sessions with fatigue ≤ 30%:</strong> avg RT = ${Math.round(wellRested.avgRT)}ms (${wellRested.count} sessions)
             `,
-            conclusion: `⏱️ Fatigue impact: ${rtPercent > 0 ? '+' : ''}${rtPercent}% ${rtPercent > 0 ? 'slower' : 'faster'} reactions when very tired. Sleep deprivation significantly slows performance.`
+            conclusion: `Fatigue impact: ${rtPercent > 0 ? '+' : ''}${rtPercent}% ${rtPercent > 0 ? 'slower' : 'faster'} reactions when very tired. Sleep deprivation significantly slows performance.`
         });
     }
 
@@ -2318,7 +2319,7 @@ function generateFatigueObservations(stats) {
                 <strong>Well-rested:</strong> Total errors = ${wellRested.totalErrors}<br>
                 <strong>Very Tired:</strong> Total errors = ${veryTired.totalErrors}
             `,
-            conclusion: `❌ Error pattern: +${errorIncrease} more error(s) when very tired. Fatigue → reduced attention and more mistakes.`
+            conclusion: `Error pattern: +${errorIncrease} more error(s) when very tired. Fatigue → reduced attention and more mistakes.`
         });
     }
 
@@ -2330,7 +2331,7 @@ function generateFatigueObservations(stats) {
                 <strong>Well-rested:</strong> Accuracy = ${wellRested.accuracy.toFixed(1)}%<br>
                 <strong>Very Tired:</strong> Accuracy = ${veryTired.accuracy.toFixed(1)}%
             `,
-            conclusion: `📊 Accuracy decline: -${accDiff}% when fatigued. Rest is critical for maintaining cognitive performance.`
+            conclusion: `Accuracy decline: -${accDiff}% when fatigued. Rest is critical for maintaining cognitive performance.`
         });
     }
 
@@ -2356,7 +2357,7 @@ function generateCombinedObservations(stats) {
                 <strong>High Stress + Well-rested:</strong> avg RT = ${Math.round(highStressLowFatigue.avgRT)}ms<br>
                 <strong>Low Stress + Very Tired:</strong> avg RT = ${Math.round(lowStressHighFatigue.avgRT)}ms
             `,
-            conclusion: `⏱️ Factor comparison: Fatigue appears ${Math.abs(lowStressHighFatigue.avgRT - highStressLowFatigue.avgRT) > 50 ? 'more' : 'similarly'} impactful than stress. ${fasterGroup === 'Low Stress + High Fatigue' ? 'Rest matters more than stress levels.' : 'Stress management complements rest.'}`
+            conclusion: `Factor comparison: Fatigue appears ${Math.abs(lowStressHighFatigue.avgRT - highStressLowFatigue.avgRT) > 50 ? 'more' : 'similarly'} impactful than stress. ${fasterGroup === 'Low Stress + High Fatigue' ? 'Rest matters more than stress levels.' : 'Stress management complements rest.'}`
         });
     }
 
@@ -2368,7 +2369,7 @@ function generateCombinedObservations(stats) {
                 <strong>High Stress + Very Tired:</strong> avg RT = ${Math.round(highBoth.avgRT)}ms, Accuracy = ${highBoth.accuracy.toFixed(1)}%<br>
                 <strong>Low Stress + Well-rested:</strong> avg RT = ${Math.round(lowBoth.avgRT)}ms, Accuracy = ${lowBoth.accuracy.toFixed(1)}%
             `,
-            conclusion: `📈 Combined effect: When both stress AND fatigue are high, performance drops by ${Math.abs(rtPercent)}%. Both factors together compound cognitive decline.`
+            conclusion: `Combined effect: When both stress AND fatigue are high, performance drops by ${Math.abs(rtPercent)}%. Both factors together compound cognitive decline.`
         });
     }
 
@@ -2376,7 +2377,7 @@ function generateCombinedObservations(stats) {
         observations.push({
             type: 'neutral',
             metrics: `<strong>Observation:</strong> You have ${stats.length} different factor combinations tracked.`,
-            conclusion: `💡 Recommendation: Continue tracking sessions with varied stress/fatigue levels to identify your personal patterns and optimal performance conditions.`
+            conclusion: `Recommendation: Continue tracking sessions with varied stress/fatigue levels to identify your personal patterns and optimal performance conditions.`
         });
     }
 
