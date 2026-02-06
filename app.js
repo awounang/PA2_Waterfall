@@ -77,11 +77,12 @@ function toggleDarkMode() {
 
 function updateModeIcon() {
     const modeIcon = document.getElementById('modeIcon');
-    // Visual indicator updates via CSS class changes
     if (document.body.classList.contains('dark-mode')) {
-        modeIcon.classList.add('dark-mode-icon');
+        modeIcon.textContent = '☀️'; // Sun icon when in dark mode
+        modeIcon.style.opacity = '0.6'; // Transparent sun
     } else {
-        modeIcon.classList.remove('dark-mode-icon');
+        modeIcon.textContent = '🌙'; // Moon icon when in light mode
+        modeIcon.style.opacity = '0.6'; // Transparent moon
     }
 }
 

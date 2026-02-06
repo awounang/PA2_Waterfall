@@ -219,18 +219,15 @@ button {
     border: 2px solid var(--text-color);
 }
 
-.mode-indicator {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: transparent;
-    border: 2px solid var(--text-color);
-    transition: all var(--transition-speed);
+.mode-icon {
+    display: inline-block;
+    font-size: 1.5rem;
+    opacity: 0.6;
+    transition: opacity var(--transition-speed);
 }
 
-.mode-indicator.dark-mode-icon {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
+.btn-icon:hover .mode-icon {
+    opacity: 1;
 }
 
 .btn-close {
