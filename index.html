@@ -76,8 +76,17 @@
                             </div>
 
                             <div class="factor-group">
-                                <label for="ageInput">Age (optional): <span id="ageValue">-</span></label>
-                                <input type="number" id="ageInput" min="1" max="120" placeholder="Enter your age">
+                                <label for="caffeineSlider">Caffeine Level: <span id="caffeineValue">0</span>%</label>
+                                <input type="range" id="caffeineSlider" min="0" max="100" value="0">
+                                <small id="caffeineLabel">No caffeine</small>
+                            </div>
+
+                            <div class="factor-group">
+                                <label for="medicationToggle">On Medication?</label>
+                                <div class="med-toggle">
+                                    <input type="checkbox" id="medicationToggle">
+                                    <small id="medicationLabel">No</small>
+                                </div>
                             </div>
 
                             <div class="factor-actions">

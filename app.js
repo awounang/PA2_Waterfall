@@ -15,7 +15,8 @@ const AppState = {
     factors: {
         stress: null,
         fatigue: null,
-        age: null
+        caffeine: null,
+        medication: null
     },
     sessions: [],
     isTestRunning: false
@@ -40,10 +41,11 @@ function setupEventListeners() {
         historyBtn.addEventListener('click', showHistory);
     }
 
-    // Factor sliders
+    // Factor inputs
     const stressSlider = document.getElementById('stressSlider');
     const fatigueSlider = document.getElementById('fatigueSlider');
-    const ageInput = document.getElementById('ageInput');
+    const caffeineSlider = document.getElementById('caffeineSlider');
+    const medicationToggle = document.getElementById('medicationToggle');
 
     if (stressSlider) {
         stressSlider.addEventListener('input', (e) => {
@@ -61,10 +63,18 @@ function setupEventListeners() {
         });
     }
 
-    if (ageInput) {
-        ageInput.addEventListener('change', (e) => {
-            AppState.factors.age = e.target.value ? parseInt(e.target.value) : null;
-            document.getElementById('ageValue').textContent = e.target.value || '-';
+    if (caffeineSlider) {
+        caffeineSlider.addEventListener('input', (e) => {
+            AppState.factors.caffeine = parseInt(e.target.value);
+            updateCaffeineLabel();
+            document.getElementById('caffeineValue').textContent = e.target.value;
+        });
+    }
+
+    if (medicationToggle) {
+        medicationToggle.addEventListener('change', (e) => {
+            AppState.factors.medication = e.target.checked ? true : false;
+            updateMedicationLabel();
         });
     }
 }
@@ -204,261 +214,6 @@ function loadInstructions(testId, testName) {
     document.getElementById('instructionsTitle').textContent = `Get Ready: ${testName}`;
 }
 
-function getTestInstructions(testId) {
-    const instructions = {
-        'simple-reaction': {
-            text: `
-                <h3>Simple Reaction Time Test</h3>
-                <p>Test your ability to respond quickly to a visual stimulus.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>One of three shapes will appear at random positions: circle, square, or rectangle</li>
-                    <li>The TARGET shape will be indicated before each trial (e.g., "Click the CIRCLE")</li>
-                    <li>Click ONLY the target shape as quickly as possible</li>
-                    <li>Clicking other shapes counts as an error</li>
-                    <li>10 trials total with 2-second intervals</li>
-                </ol>
-                <h4>Tips:</h4>
-                <ul>
-                    <li>Stay focused on the target shape</li>
-                    <li>React as fast as you can</li>
-                    <li>Accuracy matters - avoid clicking wrong shapes</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see: "Click the SQUARE"</p>
-                <p>2. After 1-2 seconds, shapes appear randomly on screen</p>
-                <p>3. You see a square, circle, and rectangle</p>
-                <p>4. You click the square: "Correct! 245ms"</p>
-                <p>5. Next trial after 2 seconds</p>
-            `
-        },
-        'go-no-go': {
-            text: `
-                <h3>Go/No-Go Test</h3>
-                <p>Test your ability to respond selectively and inhibit responses appropriately.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>The GO stimulus will be indicated (e.g., "Red Circle is GO")</li>
-                    <li>All other colors/shapes are NO-GO</li>
-                    <li>When you see the GO stimulus, click immediately</li>
-                    <li>When you see a NO-GO stimulus, do NOT click</li>
-                    <li>20 trials with random order (~70% Go, ~30% No-Go)</li>
-                </ol>
-                <h4>Scoring:</h4>
-                <ul>
-                    <li>Hit: Correctly clicked Go stimulus</li>
-                    <li>Commission Error: Clicked No-Go stimulus (mistake)</li>
-                    <li>Omission Error: Missed Go stimulus</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see: "GO stimulus: Red Circle | NO-GO: Any other color or shape"</p>
-                <p>2. Red circle appears → Click immediately: "Hit! 290ms"</p>
-                <p>3. Blue square appears → You wait: "Correct rejection!"</p>
-                <p>4. Next stimulus after 1 second</p>
-            `
-        },
-        'stroop-reaction': {
-            text: `
-                <h3>Stroop-like Reaction Test</h3>
-                <p>Test your ability to overcome the automatic reading response and focus on color.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>Color words (RED, BLUE, GREEN, YELLOW) appear in mismatched ink colors</li>
-                    <li>Click/select the COLOR OF THE INK, not the word</li>
-                    <li>Words appear at random positions on screen</li>
-                    <li>15 trials total</li>
-                </ol>
-                <h4>Challenge:</h4>
-                <ul>
-                    <li>Your brain automatically tries to read the word</li>
-                    <li>You must focus on the actual color of the text</li>
-                    <li>This conflict slows your reaction - that is normal!</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see the word "BLUE" printed in RED ink</p>
-                <p>2. Your task: Click the RED button (not blue)</p>
-                <p>3. Correct click: "Correct! 450ms"</p>
-                <p>4. Word "GREEN" appears in YELLOW ink → Click yellow button</p>
-            `
-        },
-        'target-distractors': {
-            text: `
-                <h3>Target vs Distractors Test</h3>
-                <p>Test your ability to locate and select a target among multiple distractors.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>The target shape will be specified (e.g., "Find the BLUE CIRCLE")</li>
-                    <li>Multiple shapes appear simultaneously on screen</li>
-                    <li>Click ONLY the target shape</li>
-                    <li>Distractors vary in shape, color, and position</li>
-                    <li>12 trials with increasing complexity</li>
-                </ol>
-                <h4>Difficulty Increases:</h4>
-                <ul>
-                    <li>Early trials: few distractors (3-4 shapes)</li>
-                    <li>Later trials: more distractors (5-8 shapes)</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see: "Find the BLUE CIRCLE"</p>
-                <p>2. Screen shows: red square, green circle, blue circle, yellow triangle</p>
-                <p>3. You click the blue circle: "Correct! 380ms"</p>
-                <p>4. Next trial with new target and distractors</p>
-            `
-        },
-        'n-back': {
-            text: `
-                <h3>N-Back Test</h3>
-                <p>Test your working memory by matching current items to items N positions back.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin (N=1: match to previous item)</li>
-                    <li>Shapes appear one at a time in sequence</li>
-                    <li>Click when current shape matches the one from N positions back</li>
-                    <li>Do NOT click if it doesn't match</li>
-                    <li>20 trials total</li>
-                </ol>
-                <h4>Important:</h4>
-                <ul>
-                    <li>You must remember the previous item</li>
-                    <li>Compare new item to item N steps back</li>
-                    <li>Only click if they match exactly</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence (N=1):</h4>
-                <p>1. Circle appears → Nothing to match, no click</p>
-                <p>2. Square appears → Doesn't match circle, no click</p>
-                <p>3. Square appears → Matches previous square, CLICK!</p>
-                <p>4. Circle appears → Doesn't match square, no click</p>
-                <p>5. Circle appears → Matches previous circle, CLICK!</p>
-            `
-        },
-        'sequence-memory': {
-            text: `
-                <h3>Sequence Memory Test</h3>
-                <p>Remember and reproduce a sequence of items in the correct order.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>A sequence of shapes (4-7 items) appears one at a time</li>
-                    <li>Study and remember the sequence</li>
-                    <li>After sequence ends, click shapes in the EXACT same order</li>
-                    <li>5 different sequences to complete</li>
-                </ol>
-                <h4>Scoring:</h4>
-                <ul>
-                    <li>1 point per correct sequence</li>
-                    <li>Partial credit if you get part of sequence right</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see: Circle → Square → Triangle → Circle (flashes)</p>
-                <p>2. Sequence ends, options appear as clickable buttons</p>
-                <p>3. You click: Circle → Square → Triangle → Circle</p>
-                <p>4. "Correct! Full sequence matched"</p>
-                <p>5. Next sequence appears</p>
-            `
-        },
-        'spatial-memory': {
-            text: `
-                <h3>Spatial Memory Test</h3>
-                <p>Remember positions where shapes appeared and click them in order.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>A grid appears with shapes lighting up one at a time</li>
-                    <li>Remember the ORDER of positions</li>
-                    <li>After sequence ends, click grid positions in the same order</li>
-                    <li>5 trials with 4-6 positions each</li>
-                </ol>
-                <h4>Visual-Spatial Challenge:</h4>
-                <ul>
-                    <li>Focus on LOCATION not shape</li>
-                    <li>Remember exact grid positions</li>
-                    <li>Complexity increases each trial</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>1. You see a 3×3 grid with positions lighting up: top-left → center → bottom-right</p>
-                <p>2. Sequence ends, grid reappears</p>
-                <p>3. You click: top-left → center → bottom-right</p>
-                <p>4. "Correct! 3 of 3 positions matched"</p>
-            `
-        },
-        'decision-making': {
-            text: `
-                <h3>Simple Decision-Making Test</h3>
-                <p>Select the correct option under time pressure.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>A question appears with 3-4 answer options</li>
-                    <li>Select the correct answer as quickly as possible</li>
-                    <li>You have 8 seconds per question</li>
-                    <li>15 questions total (varying difficulty)</li>
-                </ol>
-                <h4>Scoring:</h4>
-                <ul>
-                    <li>Speed and accuracy both matter</li>
-                    <li>Faster correct answers earn higher scores</li>
-                    <li>Wrong answers count as errors</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Trial:</h4>
-                <p>Question: "Which shape has 4 equal sides?"</p>
-                <p>Options: A) Circle  B) Square  C) Triangle</p>
-                <p>You click: B) Square → "Correct! 1.2 seconds"</p>
-                <p>Next question appears</p>
-            `
-        },
-        'task-switching': {
-            text: `
-                <h3>Task Switching / Mental Flexibility Test</h3>
-                <p>Test your ability to switch between different rules quickly.</p>
-                <h4>Procedure:</h4>
-                <ol>
-                    <li>Click "Start" to begin</li>
-                    <li>Round 1: Click shapes based on COLOR rule (e.g., "Click all red shapes")</li>
-                    <li>Round 2: Switch to SHAPE rule (e.g., "Click all circles")</li>
-                    <li>Rounds alternate every 8 trials</li>
-                    <li>20 trials total (10 per rule)</li>
-                </ol>
-                <h4>Errors:</h4>
-                <ul>
-                    <li>Following the old rule by mistake (perseveration error)</li>
-                    <li>Failing to switch rules when prompted</li>
-                    <li>Clicking wrong shapes</li>
-                </ul>
-            `,
-            example: `
-                <h4>Example Sequence:</h4>
-                <p>Round 1 (Color Rule): "Click RED shapes"</p>
-                <p>You see red circle, blue square, red triangle → Click both red shapes</p>
-                <p>Round 2 (Switch to Shape Rule): "Click CIRCLES"</p>
-                <p>You see red circle, blue circle, red square → Click both circles</p>
-                <p>Error: If you keep clicking based on color when rule changed</p>
-            `
-        }
-    };
-
-    return instructions[testId] || { text: '<p>No instructions found.</p>', example: '' };
-}
-
 // ===== FACTOR INPUT =====
 function toggleFactorPanel() {
     const factorInputs = document.getElementById('factorInputs');
@@ -491,16 +246,42 @@ function updateFatigueLabel() {
     }
 }
 
+function updateCaffeineLabel() {
+    const caffeine = AppState.factors.caffeine || 0;
+    const label = document.getElementById('caffeineLabel');
+    if (caffeine <= 20) {
+        label.textContent = 'No / minimal caffeine';
+    } else if (caffeine <= 50) {
+        label.textContent = 'Moderate caffeine (alertness boost)';
+    } else if (caffeine <= 70) {
+        label.textContent = 'High caffeine (strong alertness)';
+    } else {
+        label.textContent = 'Very high caffeine (may cause jitter)';
+    }
+}
+
+function updateMedicationLabel() {
+    const med = AppState.factors.medication;
+    const label = document.getElementById('medicationLabel');
+    label.textContent = med ? 'Yes' : 'No';
+}
+
 function resetFactors() {
-    AppState.factors = { stress: null, fatigue: null, age: null };
+    AppState.factors = { stress: null, fatigue: null, caffeine: null, medication: null };
     document.getElementById('stressSlider').value = 0;
     document.getElementById('fatigueSlider').value = 0;
-    document.getElementById('ageInput').value = '';
+    const c = document.getElementById('caffeineSlider');
+    if (c) c.value = 0;
+    const m = document.getElementById('medicationToggle');
+    if (m) m.checked = false;
     document.getElementById('stressValue').textContent = '0';
     document.getElementById('fatigueValue').textContent = '0';
-    document.getElementById('ageValue').textContent = '-';
+    if (document.getElementById('caffeineValue')) document.getElementById('caffeineValue').textContent = '0';
+    if (document.getElementById('medicationLabel')) document.getElementById('medicationLabel').textContent = 'No';
     updateStressLabel();
     updateFatigueLabel();
+    updateCaffeineLabel();
+    updateMedicationLabel();
 }
 
 function clearFactors() {
@@ -1819,7 +1600,8 @@ function saveSession() {
         factors: {
             stress: AppState.factors.stress,
             fatigue: AppState.factors.fatigue,
-            age: AppState.factors.age
+            caffeine: AppState.factors.caffeine,
+            medication: AppState.factors.medication
         }
     };
 
@@ -1859,27 +1641,50 @@ function generateInsights() {
         }
     }
 
-    // Check factor impact on accuracy
-    if (AppState.factors.stress !== null || AppState.factors.fatigue !== null) {
-        const accuracy = (data.correctResponses / data.totalTrials) * 100;
-        let factorImpact = [];
+    // Check factor impact on accuracy with expanded ranges
+    const accuracy = (data.correctResponses / data.totalTrials) * 100;
+    let factorArray = [];
+    
+    // Stress analysis with granular ranges
+    if (AppState.factors.stress !== null) {
+        if (AppState.factors.stress >= 70) factorArray.push('very high stress (>70%)');
+        else if (AppState.factors.stress >= 50) factorArray.push('high stress (50-70%)');
+        else if (AppState.factors.stress >= 30) factorArray.push('moderate stress (30-50%)');
+        else if (AppState.factors.stress > 0) factorArray.push('mild stress (0-30%)');
+    }
+    
+    // Fatigue analysis with granular ranges
+    if (AppState.factors.fatigue !== null) {
+        if (AppState.factors.fatigue >= 70) factorArray.push('severe fatigue (>70%)');
+        else if (AppState.factors.fatigue >= 50) factorArray.push('significant fatigue (50-70%)');
+        else if (AppState.factors.fatigue >= 30) factorArray.push('moderate fatigue (30-50%)');
+        else if (AppState.factors.fatigue > 0) factorArray.push('mild fatigue (0-30%)');
+    }
+    
+    // Age analysis if provided
+    if (AppState.factors.age !== null) {
+        const age = parseInt(AppState.factors.age);
+        if (age >= 65) factorArray.push('advanced age (65+)');
+        else if (age >= 50) factorArray.push('mature age (50-64)');
+        else if (age >= 30) factorArray.push('mid-career age (30-49)');
+        else if (age >= 18) factorArray.push('young adult age (18-29)');
+    }
 
-        if (AppState.factors.stress > 70) {
-            factorImpact.push('high stress');
-        }
-        if (AppState.factors.fatigue > 70) {
-            factorImpact.push('high fatigue');
-        }
-
-        if (factorImpact.length > 0 && accuracy < 75) {
+    if (factorArray.length > 0) {
+        if (accuracy < 50) {
             insights.push({
                 type: 'factors',
-                message: `Factor Impact: Your ${factorImpact.join(' and ')} may have affected your performance. Consider retesting when more relaxed and rested.`
+                message: `Factor Impact: With ${factorArray.join(', ')}, your performance is significantly impacted. Consider retesting under better conditions.`
             });
-        } else if (factorImpact.length > 0 && accuracy >= 75) {
+        } else if (accuracy < 75) {
             insights.push({
                 type: 'factors',
-                message: `Resilience: Despite ${factorImpact.join(' and ')}, you maintained good performance! Great mental resilience.`
+                message: `Factor Impact: ${factorArray.join(', ')} may be affecting your performance. Accuracy could improve with better conditions.`
+            });
+        } else {
+            insights.push({
+                type: 'factors',
+                message: `Resilience: Despite ${factorArray.join(', ')}, you maintained good performance! Strong mental resilience.`
             });
         }
     }
@@ -1903,22 +1708,37 @@ function generateInsights() {
         }
     }
 
-    // Feedback on accuracy
-    const accuracy = (data.correctResponses / data.totalTrials) * 100;
-    if (accuracy >= 90) {
+    // Feedback on accuracy using user-specified thresholds (85, 65, 50, 35, 20)
+    const finalAccuracy = (data.correctResponses / data.totalTrials) * 100;
+    if (finalAccuracy >= 85) {
         insights.push({
             type: 'performance',
-            message: `Excellent accuracy! You're performing at a high level. Consider trying a more challenging test.`
+            message: `Excellent accuracy (≥85%) — exceptional performance. Consider trying a more challenging test.`
         });
-    } else if (accuracy >= 75) {
+    } else if (finalAccuracy >= 65) {
         insights.push({
             type: 'performance',
-            message: `Good performance! Your accuracy is solid. Keep practicing to improve further.`
+            message: `Strong performance (≥65%) — solid results. Keep practicing to maintain or improve.`
         });
-    } else if (accuracy >= 60) {
+    } else if (finalAccuracy >= 50) {
         insights.push({
             type: 'performance',
-            message: `Room for improvement. Try taking the test again when you're more focused.`
+            message: `Moderate performance (≥50%) — some improvement possible. Focus on accuracy and deliberate responses.`
+        });
+    } else if (finalAccuracy >= 35) {
+        insights.push({
+            type: 'performance',
+            message: `Low performance (≥35%) — consider retesting when rested and reduce distractions.`
+        });
+    } else if (finalAccuracy >= 20) {
+        insights.push({
+            type: 'performance',
+            message: `Very low performance (≥20%) — take a break, rest, and try a simpler test before retrying.`
+        });
+    } else {
+        insights.push({
+            type: 'performance',
+            message: `Critical performance (<20%) — review instructions and retake later when rested; seek help if issues persist.`
         });
     }
 
@@ -2008,8 +1828,19 @@ function displayResults() {
             resultsHTML += `<div class="details-row"><span class="details-label">Fatigue Level:</span><span class="details-value">${AppState.factors.fatigue}% (${fatigueLabel})</span></div>`;
         }
 
-        if (AppState.factors.age !== null) {
-            resultsHTML += `<div class="details-row"><span class="details-label">Age:</span><span class="details-value">${AppState.factors.age} years</span></div>`;
+        if (AppState.factors.caffeine !== null) {
+            let cafLabel = 'No caffeine';
+            const cVal = AppState.factors.caffeine;
+            if (cVal > 70) cafLabel = 'Very high (may jitter)';
+            else if (cVal > 50) cafLabel = 'High (strong alertness)';
+            else if (cVal > 20) cafLabel = 'Moderate (alertness boost)';
+            else if (cVal > 0) cafLabel = 'Low';
+            resultsHTML += `<div class="details-row"><span class="details-label">Caffeine:</span><span class="details-value">${cVal}% (${cafLabel})</span></div>`;
+        }
+
+        if (AppState.factors.medication !== null) {
+            const medVal = AppState.factors.medication ? 'Yes' : 'No';
+            resultsHTML += `<div class="details-row"><span class="details-label">On Medication:</span><span class="details-value">${medVal}</span></div>`;
         }
 
         resultsHTML += '</div>';
