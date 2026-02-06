@@ -1,49 +1,13 @@
-# GitLab CI/CD Configuration for Cognitive Test App - Waterfall
-# Essential deployment pipeline for static web application
-
-stages:
-  - build
-  - deploy
-
-# ===== BUILD STAGE =====
-
-build:app:
-  stage: build
-  image: alpine:latest
-  script:
-    - echo "Building Cognitive Test App..."
-    - mkdir -p dist
-    - cp index.html dist/
-    - cp styles.css dist/
-    - cp app.js dist/
-    - cp README.md dist/
-    - echo "Build complete"
-  artifacts:
-    paths:
-      - dist/
-    expire_in: 30 days
-  only:
-    - main
-    - tags
-
-# ===== DEPLOY STAGE =====
-
-# Deploy to GitLab Pages (Automatic on main branch)
 pages:
   stage: deploy
-  image: alpine:latest
   script:
-    - echo "Deploying to GitLab Pages..."
     - mkdir -p public
     - cp index.html public/
-    - cp styles.css public/
-    - cp app.js public/
-    - cp README.md public/
+    - cp -r css public/ || true
+    - cp -r js public/ || true
+    - cp -r assets public/ || true
   artifacts:
     paths:
       - public
   only:
     - main
-  environment:
-    name: production
-    url: https://$CI_PROJECT_NAMESPACE.gitlab.io/$CI_PROJECT_NAME
