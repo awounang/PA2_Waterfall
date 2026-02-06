@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Test App - Reaction Time & Attention Tests</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>Cognitive Test Suite</h1>
+            <div class="header-controls">
+                <button id="darkModeToggle" class="btn-icon" title="Toggle dark mode"><span id="modeIcon">🌙</span></button>
+                <button id="historyBtn" class="btn-secondary" title="View session history">📊 History</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            
+            <!-- HOME SCREEN -->
+            <section id="homeScreen" class="screen active">
+                <div class="screen-content">
+                    <h2>Welcome to Cognitive Test Suite</h2>
+                    <p>Comprehensive assessment of reaction time, attention, working memory, and executive function.</p>
+                    
+                    <div class="button-group">
+                        <button class="btn-primary btn-large" onclick="showTestSelection('reaction-attention')">
+                            ⚡ Reaction & Attention
+                        </button>
+                        <button class="btn-primary btn-large" onclick="showTestSelection('working-memory')">
+                            🧠 Working Memory
+                        </button>
+                        <button class="btn-primary btn-large" onclick="showTestSelection('executive-function')">
+                            🎯 Executive Function
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEST SELECTION SCREEN -->
+            <section id="testSelectionScreen" class="screen">
+                <div class="screen-content">
+                    <button class="btn-back" onclick="goHome()">← Back</button>
+                    <h2 id="testCategoryTitle">Select a Test</h2>
+                    <div id="testSelectionContainer" class="test-selection-grid"></div>
+                </div>
+            </section>
+
+            <!-- INSTRUCTIONS SCREEN -->
+            <section id="instructionsScreen" class="screen">
+                <div class="screen-content">
+                    <button class="btn-back" onclick="goHome()">← Back</button>
+                    <h2 id="instructionsTitle">Test Instructions</h2>
+                    
+                    <!-- FACTOR INPUT PANEL -->
+                    <div class="factor-panel">
+                        <button class="factor-toggle" onclick="toggleFactorPanel()">
+                            ⚙️ Optional: Enter Personal Factors
+                        </button>
+                        <div id="factorInputs" class="factor-inputs" style="display: block;">
+                            <p class="factor-info">These factors help us understand how conditions affect your performance. All are optional.</p>
+                            
+                            <div class="factor-group">
+                                <label for="stressSlider">Stress Level: <span id="stressValue">0</span>%</label>
+                                <input type="range" id="stressSlider" min="0" max="100" value="0">
+                                <small id="stressLabel">No stress (Baseline)</small>
+                            </div>
+
+                            <div class="factor-group">
+                                <label for="fatigueSlider">Fatigue Level: <span id="fatigueValue">0</span>%</label>
+                                <input type="range" id="fatigueSlider" min="0" max="100" value="0">
+                                <small id="fatigueLabel">Well-rested</small>
+                            </div>
+
+                            <div class="factor-group">
+                                <label for="ageInput">Age (optional): <span id="ageValue">-</span></label>
+                                <input type="number" id="ageInput" min="1" max="120" placeholder="Enter your age">
+                            </div>
+
+                            <div class="factor-actions">
+                                <button class="btn-secondary" onclick="clearFactors()">Clear Factors</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="startTest()">Start Test</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEST SCREEN -->
+            <section id="testScreen" class="screen">
+                <div class="screen-content">
+                    <!-- Test Container -->
+                    <div id="testContainer" class="test-container"></div>
+                    
+                    <!-- Test Controls -->
+                    <div id="testControls" class="test-controls"></div>
+
+                    <!-- Test Progress -->
+                    <div id="testProgress" class="test-progress"></div>
+                </div>
+            </section>
+
+            <!-- RESULTS SCREEN -->
+            <section id="resultsScreen" class="screen">
+                <div class="screen-content">
+                    <h2>Test Results</h2>
+                    
+                    <div id="resultsContent" class="results-content"></div>
+
+                    <div class="results-actions button-group">
+                        <button class="btn-primary" onclick="showTrends()">📈 View Trends</button>
+                        <button class="btn-secondary" onclick="backToTestSelection()">← Try Another Test</button>
+                        <button class="btn-secondary" onclick="goHome()">🏠 Home</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TRENDS SCREEN -->
+            <section id="trendsScreen" class="screen">
+                <div class="screen-content">
+                    <button class="btn-back" onclick="showResults()">← Back to Results</button>
+                    <h2>Performance Trends & Factor Analysis</h2>
+                    
+                    <div class="trends-controls">
+                        <div class="control-group">
+                            <label for="testTypeFilter">Test:</label>
+                            <select id="testTypeFilter" onchange="updateTrendChart()">
+                                <option value="">All Tests</option>
+                                <option value="Simple Reaction">Simple Reaction</option>
+                                <option value="Go/No-Go">Go/No-Go</option>
+                                <option value="Stroop-like Reaction">Stroop-like Reaction</option>
+                                <option value="Target vs Distractors">Target vs Distractors</option>
+                                <option value="N-Back">N-Back</option>
+                                <option value="Sequence Memory">Sequence Memory</option>
+                                <option value="Spatial Memory">Spatial Memory</option>
+                                <option value="Decision-Making">Decision-Making</option>
+                                <option value="Task Switching">Task Switching</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="groupByFactor">Group by:</label>
+                            <select id="groupByFactor" onchange="updateTrendChart()">
+                                <option value="none">None</option>
+                                <option value="stress">Stress Level</option>
+                                <option value="fatigue">Fatigue Level</option>
+                                <option value="stress-fatigue">Stress & Fatigue (Combined)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="trendsChart" class="trends-chart"></div>
+                    <div id="factorAnalysis" class="factor-analysis"></div>
+                    
+                    <div class="trends-actions button-group">
+                        <button class="btn-secondary" onclick="goHome()">Home</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SESSION HISTORY MODAL -->
+            <div id="historyModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <button class="btn-close" onclick="closeHistory()">✕</button>
+                    <h2>Session History</h2>
+                    <div id="historyList" class="history-list"></div>
+                    <div class="modal-actions">
+                        <button class="btn-danger" onclick="clearHistory()">Clear All History</button>
+                        <button class="btn-secondary" onclick="closeHistory()">Close</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 Cognitive Test Suite - Waterfall Implementation</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
