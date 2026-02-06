@@ -77,13 +77,8 @@ function toggleDarkMode() {
 
 function updateModeIcon() {
     const modeIcon = document.getElementById('modeIcon');
-    if (document.body.classList.contains('dark-mode')) {
-        modeIcon.textContent = '☀️'; // Sun icon when in dark mode
-        modeIcon.style.opacity = '0.6'; // Transparent sun
-    } else {
-        modeIcon.textContent = '🌙'; // Moon icon when in light mode
-        modeIcon.style.opacity = '0.6'; // Transparent moon
-    }
+    // Keep consistent transparency effect in both modes
+    modeIcon.style.opacity = '0.6';
 }
 
 function applyDarkModePreference() {
