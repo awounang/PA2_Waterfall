@@ -1,0 +1,4 @@
+{
+  "nodejs.testing.showRunButtons": true,
+  "nodejs.testing.defaultRunner": "node"
+}

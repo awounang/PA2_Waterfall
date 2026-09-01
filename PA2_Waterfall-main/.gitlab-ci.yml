@@ -1,0 +1,50 @@
+stages:
+  - test
+  - deploy
+
+# Unit Tests – Test einzelner JavaScript-Funktionen
+unit-tests:
+  stage: test
+  image: node:20
+  script:
+    - node --test --test-reporter spec tests/unit/cts-ts-spec.test.js
+  only:
+    - main
+    - merge_requests
+
+# End-to-End Tests – Simulation kompletter Benutzerabläufe
+e2e-tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.49.0-jammy
+  script:
+    - npm ci
+    - npm run test:e2e
+  only:
+    - main
+    - merge_requests
+
+# Regression Tests – Wiederholung bestehender Tests nach Änderungen
+regression-tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.49.0-jammy
+  script:
+    - node --test --test-reporter spec tests/unit/cts-ts-spec.test.js
+    - npm ci
+    - npm run test:e2e
+  only:
+    - main
+    - merge_requests
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp index.html public/
+    - cp styles.css public/
+    - cp app.js public/
+    - cp utils.js public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
