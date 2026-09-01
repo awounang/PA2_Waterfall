@@ -223,41 +223,18 @@ function toggleFactorPanel() {
 }
 
 function updateStressLabel() {
-    const stress = AppState.factors.stress || 0;
     const label = document.getElementById('stressLabel');
-    if (stress <= 30) {
-        label.textContent = 'Low Stress';
-    } else if (stress <= 70) {
-        label.textContent = 'Medium Stress';
-    } else {
-        label.textContent = 'High Stress';
-    }
+    label.textContent = CognitiveUtils.getStressLabel(AppState.factors.stress);
 }
 
 function updateFatigueLabel() {
-    const fatigue = AppState.factors.fatigue || 0;
     const label = document.getElementById('fatigueLabel');
-    if (fatigue <= 30) {
-        label.textContent = 'Well-rested';
-    } else if (fatigue <= 70) {
-        label.textContent = 'Tired';
-    } else {
-        label.textContent = 'Very Tired';
-    }
+    label.textContent = CognitiveUtils.getFatigueLabel(AppState.factors.fatigue);
 }
 
 function updateCaffeineLabel() {
-    const caffeine = AppState.factors.caffeine || 0;
     const label = document.getElementById('caffeineLabel');
-    if (caffeine <= 20) {
-        label.textContent = 'No / minimal caffeine';
-    } else if (caffeine <= 50) {
-        label.textContent = 'Moderate caffeine (alertness boost)';
-    } else if (caffeine <= 70) {
-        label.textContent = 'High caffeine (strong alertness)';
-    } else {
-        label.textContent = 'Very high caffeine (may cause jitter)';
-    }
+    label.textContent = CognitiveUtils.getCaffeineLabel(AppState.factors.caffeine);
 }
 
 function updateMedicationLabel() {
@@ -1594,9 +1571,7 @@ function saveSession() {
         errors: AppState.testData.errors,
         totalTrials: AppState.testData.totalTrials,
         correctResponses: AppState.testData.correctResponses,
-        avgReactionTime: AppState.testData.reactionTimes.length > 0
-            ? Math.round(AppState.testData.reactionTimes.reduce((a, b) => a + b, 0) / AppState.testData.reactionTimes.length)
-            : 0,
+        avgReactionTime: CognitiveUtils.calculateAvgReactionTime(AppState.testData.reactionTimes),
         factors: {
             stress: AppState.factors.stress,
             fatigue: AppState.factors.fatigue,
@@ -1748,11 +1723,8 @@ function generateInsights() {
 // ===== RESULTS DISPLAY =====
 function displayResults() {
     const data = AppState.testData;
-    const avgReactionTime = data.reactionTimes.length > 0
-        ? Math.round(data.reactionTimes.reduce((a, b) => a + b, 0) / data.reactionTimes.length)
-        : 0;
-
-    const accuracy = ((data.correctResponses / data.totalTrials) * 100).toFixed(1);
+    const avgReactionTime = CognitiveUtils.calculateAvgReactionTime(data.reactionTimes);
+    const accuracy = CognitiveUtils.calculateAccuracy(data.correctResponses, data.totalTrials);
     const insights = generateInsights();
 
     let resultsHTML = '<div class="results-grid">';
@@ -1885,82 +1857,16 @@ function updateTrendChart() {
     let groupedData = { 'All Sessions': filteredSessions };
     
     if (groupByFactor === 'stress') {
-        groupedData = groupSessionsByStress(filteredSessions);
+        groupedData = CognitiveUtils.groupSessionsByStress(filteredSessions);
     } else if (groupByFactor === 'fatigue') {
-        groupedData = groupSessionsByFatigue(filteredSessions);
+        groupedData = CognitiveUtils.groupSessionsByFatigue(filteredSessions);
     } else if (groupByFactor === 'stress-fatigue') {
-        groupedData = groupSessionsByStressAndFatigue(filteredSessions);
+        groupedData = CognitiveUtils.groupSessionsByStressAndFatigue(filteredSessions);
     }
 
     // Generate chart and analysis
     generateFactorChart(groupedData, groupByFactor);
     generateFactorAnalysis(groupedData, groupByFactor);
-}
-
-function groupSessionsByStress(sessions) {
-    const groups = {
-        'Low Stress (0-30%)': [],
-        'Medium Stress (31-70%)': [],
-        'High Stress (71-100%)': []
-    };
-
-    sessions.forEach(s => {
-        if (s.factors.stress === null) {
-            groups['No Data'] = groups['No Data'] || [];
-            groups['No Data'].push(s);
-        } else if (s.factors.stress <= 30) {
-            groups['Low Stress (0-30%)'].push(s);
-        } else if (s.factors.stress <= 70) {
-            groups['Medium Stress (31-70%)'].push(s);
-        } else {
-            groups['High Stress (71-100%)'].push(s);
-        }
-    });
-
-    return Object.fromEntries(Object.entries(groups).filter(([, v]) => v.length > 0));
-}
-
-function groupSessionsByFatigue(sessions) {
-    const groups = {
-        'Well-rested (0-30%)': [],
-        'Tired (31-70%)': [],
-        'Very Tired (71-100%)': []
-    };
-
-    sessions.forEach(s => {
-        if (s.factors.fatigue === null) {
-            groups['No Data'] = groups['No Data'] || [];
-            groups['No Data'].push(s);
-        } else if (s.factors.fatigue <= 30) {
-            groups['Well-rested (0-30%)'].push(s);
-        } else if (s.factors.fatigue <= 70) {
-            groups['Tired (31-70%)'].push(s);
-        } else {
-            groups['Very Tired (71-100%)'].push(s);
-        }
-    });
-
-    return Object.fromEntries(Object.entries(groups).filter(([, v]) => v.length > 0));
-}
-
-function groupSessionsByStressAndFatigue(sessions) {
-    const groups = {};
-
-    sessions.forEach(s => {
-        if (s.factors.stress === null || s.factors.fatigue === null) {
-            const key = 'Incomplete Data';
-            groups[key] = groups[key] || [];
-            groups[key].push(s);
-        } else {
-            let stressLabel = s.factors.stress <= 30 ? 'Low' : s.factors.stress <= 70 ? 'Med' : 'High';
-            let fatigueLabel = s.factors.fatigue <= 30 ? 'Rested' : s.factors.fatigue <= 70 ? 'Tired' : 'V.Tired';
-            const key = `Stress:${stressLabel} + Fatigue:${fatigueLabel}`;
-            groups[key] = groups[key] || [];
-            groups[key].push(s);
-        }
-    });
-
-    return groups;
 }
 
 function generateFactorChart(groupedData, groupByFactor) {
