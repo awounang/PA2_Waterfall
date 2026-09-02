@@ -2,41 +2,72 @@ stages:
   - test
   - deploy
 
-# Unit Tests – Test einzelner JavaScript-Funktionen
+variables:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+  CI: "true"
+  npm_config_fund: "false"
+
+# Unit Tests – individuelle Node-Tests (VS Code / node --test)
 unit-tests:
   stage: test
   image: node:20
   script:
-    - node --test --test-reporter spec tests/unit/cts-ts-spec.test.js
-  only:
-    - main
-    - merge_requests
+    - npm ci
+    - npm run test:unit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: manual
+      allow_failure: true
 
-# End-to-End Tests – Simulation kompletter Benutzerabläufe
+# End-to-End Tests – alle 18 CTS-TS Specs mit Playwright
 e2e-tests:
   stage: test
   image: mcr.microsoft.com/playwright:v1.49.0-jammy
   script:
     - npm ci
     - npm run test:e2e
-  only:
-    - main
-    - merge_requests
+  artifacts:
+    when: always
+    reports:
+      junit: test-results/junit.xml
+    paths:
+      - playwright-report/
+      - test-results/
+    expire_in: 14 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: manual
+      allow_failure: true
 
-# Regression Tests – Wiederholung bestehender Tests nach Änderungen
+# Regression – Unit + E2E nach jeder Änderung
 regression-tests:
   stage: test
   image: mcr.microsoft.com/playwright:v1.49.0-jammy
   script:
-    - node --test --test-reporter spec tests/unit/cts-ts-spec.test.js
     - npm ci
-    - npm run test:e2e
-  only:
-    - main
-    - merge_requests
+    - npm run test:regression
+  artifacts:
+    when: always
+    reports:
+      junit: test-results/junit.xml
+    paths:
+      - playwright-report/
+      - test-results/
+    expire_in: 14 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "master"
+    - when: manual
+      allow_failure: true
 
 pages:
   stage: deploy
+  image: alpine:latest
   script:
     - mkdir -p public
     - cp index.html public/
@@ -46,5 +77,6 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "master"

@@ -1,4 +1,7 @@
 {
   "nodejs.testing.showRunButtons": true,
-  "nodejs.testing.defaultRunner": "node"
+  "nodejs.testing.defaultRunner": "node",
+  "testing.gutterEnabled": true,
+  "testing.automaticallyOpenPeekView": "failure",
+  "playwright.reuseBrowser": true
 }

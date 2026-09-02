@@ -1,0 +1,16 @@
+{
+  "name": "cognitive-test-suite",
+  "private": true,
+  "description": "Cognitive Test Suite — Playwright CTS-TS specs and GitLab CI",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test --test-reporter spec tests/unit/cts-ts-spec.test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:regression": "npm test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.0"
+  }
+}
