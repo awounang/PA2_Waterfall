@@ -1,5 +1,5 @@
 /**
- * CTS-TS E2E — 18 specification cases (Playwright)
+ * CTS-TS E2E tests (Playwright)
  *
  * Run all:  npm.cmd run test:e2e
  * Run one:  npm.cmd run test:e2e -- -g "CTS-TS-001"
@@ -21,44 +21,18 @@ async function openInstructions(page, category, heading) {
 }
 
 async function startModule(page, category, heading) {
-    await openInstructions(page, category, heading);
+    await page.goto('/');
+    await page.getByRole('button', { name: category }).click();
+    await page.getByRole('heading', { name: heading }).click();
     await page.getByRole('button', { name: 'Start Test' }).click();
     await expect(page.locator('#testScreen')).toHaveClass(/active/);
-}
-
-async function seedSessions(page, sessions) {
-    await page.goto('/');
-    await page.evaluate((data) => {
-        localStorage.setItem('cognitiveTestSessions', JSON.stringify(data));
-    }, sessions);
-    await page.reload();
-}
-
-function sampleSession(overrides = {}) {
-    return {
-        date: '2026-08-31',
-        time: '15:00',
-        testType: 'Reaction & Attention',
-        subTest: 'Simple Reaction',
-        score: 9,
-        totalTrials: 10,
-        correctResponses: 9,
-        errors: 1,
-        reactionTimes: [280, 300, 320],
-        avgReactionTime: 300,
-        factors: { stress: null, fatigue: null, caffeine: null, medication: null },
-        ...overrides
-    };
 }
 
 async function readAppState(page) {
     return page.evaluate(() => JSON.parse(JSON.stringify({
         currentScreen: AppState.currentScreen,
         selectedTest: AppState.selectedTest,
-        isTestRunning: AppState.isTestRunning,
-        factors: AppState.factors,
-        testData: AppState.testData,
-        sessions: AppState.sessions
+        isTestRunning: AppState.isTestRunning
     })));
 }
 
@@ -98,4 +72,40 @@ test.describe('CTS-TS specification', () => {
         expect(state.selectedTest).toBeNull();
     });
 
+    test('CTS-TS-002: Personal factor input capture', async ({ page }) => {
+        await openInstructions(page, 'Reaction & Attention', 'Simple Reaction Time');
+
+        await setSlider(page, '#stressSlider', 60);
+        await setSlider(page, '#fatigueSlider', 40);
+        await setSlider(page, '#caffeineSlider', 25);
+        await page.locator('#medicationToggle').check();
+
+        await expect(page.locator('#stressValue')).toHaveText('60');
+        await expect(page.locator('#fatigueValue')).toHaveText('40');
+        await expect(page.locator('#caffeineValue')).toHaveText('25');
+        await expect(page.locator('#medicationLabel')).toHaveText('Yes');
+
+        const factors = await page.evaluate(() => AppState.factors);
+        expect(factors).toEqual({ stress: 60, fatigue: 40, caffeine: 25, medication: true });
+
+        await page.evaluate(() => {
+            AppState.selectedTest = 'simple-reaction';
+            AppState.currentTestType = 'reaction-attention';
+            AppState.testData = {
+                reactionTimes: [300],
+                correctResponses: 9,
+                totalTrials: 10,
+                errors: 1,
+                score: 9,
+                startTime: Date.now(),
+                endTime: Date.now()
+            };
+            saveSession();
+        });
+
+        const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('cognitiveTestSessions')));
+        expect(stored).toHaveLength(1);
+        expect(stored[0].factors).toEqual({ stress: 60, fatigue: 40, caffeine: 25, medication: true });
+        expect(stored[0].subTest).toBe('Simple Reaction');
+    });
 });

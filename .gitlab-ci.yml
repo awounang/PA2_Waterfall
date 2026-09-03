@@ -21,7 +21,7 @@ unit-tests:
     - when: manual
       allow_failure: true
 
-# End-to-End Tests – alle 18 CTS-TS Specs mit Playwright
+# End-to-End Tests – Playwright (CTS-TS)
 e2e-tests:
   stage: test
   image: mcr.microsoft.com/playwright:v1.49.0-jammy
