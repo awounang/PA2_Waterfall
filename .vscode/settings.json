@@ -3,5 +3,5 @@
   "nodejs.testing.defaultRunner": "node",
   "testing.gutterEnabled": true,
   "testing.automaticallyOpenPeekView": "failure",
-  "playwright.reuseBrowser": true
+  "playwright.reuseBrowser": false
 }

@@ -15,6 +15,7 @@ module.exports = defineConfig({
     ],
     use: {
         baseURL: 'http://127.0.0.1:4173',
+        headless: !!process.env.CI,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure'
     },
@@ -25,7 +26,7 @@ module.exports = defineConfig({
         }
     ],
     webServer: {
-        command: 'npx --yes serve . -l 4173',
+        command: 'npx --no-install serve . -l 4173',
         url: 'http://127.0.0.1:4173',
         reuseExistingServer: !process.env.CI,
         timeout: 120000
