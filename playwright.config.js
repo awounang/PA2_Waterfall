@@ -10,14 +10,14 @@ module.exports = defineConfig({
     workers: process.env.CI ? 2 : undefined,
     reporter: [
         ['list'],
-        ['html', { open: 'never', outputFolder: 'playwright-report' }],
+        ['html', { open: process.env.CI ? 'never' : 'always', outputFolder: 'playwright-report' }],
         ['junit', { outputFile: 'test-results/junit.xml' }]
     ],
     use: {
         baseURL: 'http://127.0.0.1:4173',
         headless: !!process.env.CI,
         trace: 'on-first-retry',
-        screenshot: 'only-on-failure'
+        screenshot: 'on'
     },
     projects: [
         {

@@ -1290,6 +1290,7 @@ function runDecisionMakingTest() {
     const numTrials = 15;
     let currentTrial = 0;
     let trialStartTime = null;
+    let limitTimer = null;
 
     const questions = [
         { q: 'Which shape has 4 equal sides?', opts: ['Circle', 'Square', 'Triangle'], correct: 1 },
@@ -1338,6 +1339,10 @@ function runDecisionMakingTest() {
             btn.style.backgroundColor = '#4a90e2';
 
             btn.onclick = () => {
+                if (limitTimer) {
+                    clearTimeout(limitTimer);
+                    limitTimer = null;
+                }
                 const reactionTime = Date.now() - trialStartTime;
                 const isCorrect = index === correctAnswer;
 
@@ -1355,6 +1360,7 @@ function runDecisionMakingTest() {
                     const btns = document.querySelectorAll('.choice-button');
                     if (i !== index) btns[i].disabled = true;
                 });
+                btn.disabled = true;
 
                 const feedbackClass = isCorrect ? 'correct' : 'incorrect';
                 const feedbackText = isCorrect ? `✓ Correct! ${reactionTime}ms` : '✗ Incorrect!';
@@ -1366,8 +1372,8 @@ function runDecisionMakingTest() {
             controlsContainer.appendChild(btn);
         });
 
-        // 8 second time limit
-        setTimeout(() => {
+        // 8 second time limit (cleared on click so it cannot fire on the next trial)
+        limitTimer = setTimeout(() => {
             const btns = document.querySelectorAll('.choice-button');
             if (btns.length > 0 && !btns[0].disabled) {
                 AppState.testData.errors++;
